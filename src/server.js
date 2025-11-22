@@ -6,24 +6,29 @@
  */
 
 import express from 'express'
-import { mapOrder } from '~/utils/sorts.js'
-import { CONNECT_DB, GET_DB } from '~/config/mongodb.js'
+import exitHook from 'async-exit-hook'
+
+import { CONNECT_DB, CLOSE_DB } from '~/config/mongodb.js'
+import { env } from '~/config/environment'
 
 const START_SERVER = () => {
   const app = express()
 
-  const hostname = 'localhost'
-  const port = 8017
-
   app.get('/', async (req, res) => {
-    // Test Absolute import mapOrder
-    console.log(await GET_DB().listCollections().toArray())
     res.end('<h1>Hello World!</h1><hr>')
   })
 
-  app.listen(port, hostname, () => {
+  app.listen(env.APP_PORT, env.APP_HOST, () => {
     // eslint-disable-next-line no-console
-    console.log(`3. Back-end server is running successfully at Host: ${hostname} and Port: ${port}`)
+    console.log(
+      `3. Hi ${env.AUTHOR},  Back-end server is running successfully at Host: ${env.APP_HOST} and Port: ${env.APP_PORT}`
+    )
+  })
+
+  exitHook(() => {
+    console.log('4. Server is shutting down...')
+    CLOSE_DB()
+    console.log('5. Disconnected from MongoDB Cloud Atlas')
   })
 }
 

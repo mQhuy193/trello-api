@@ -4,16 +4,13 @@
  * "A bit of fragrance clings to the hand that gives flowers!"
  */
 
-const MONGODB_URI = 'mongodb+srv://mQhuy193:WrZhZa6EjPgJKUn7@cluster0-mqhuy.iafiifh.mongodb.net/?appName=Cluster0-mQhuy'
-
-const DATABASE_NAME = 'trello-database'
-
 import { MongoClient, ServerApiVersion } from 'mongodb'
+import { env } from '~/config/environment.js'
 
 // Khởi tạo một đối tượng trelloDatabaseInstance ban đầu là null vì chưa connect
 let trelloDatabaseInstance = null
 
-const mongoClientInstance = new MongoClient(MONGODB_URI, {
+const mongoClientInstance = new MongoClient(env.MONGODB_URI, {
   serverApi: {
     version: ServerApiVersion.v1,
     strict: true,
@@ -27,7 +24,7 @@ export const CONNECT_DB = async () => {
   await mongoClientInstance.connect()
 
   //Kết nối thành công thì lấy ra Database theo tên và gán ngược vào biến trelloDatabaseInstance
-  trelloDatabaseInstance = mongoClientInstance.db(DATABASE_NAME)
+  trelloDatabaseInstance = mongoClientInstance.db(env.DATABASE_NAME)
 }
 
 /*Funtion GET_DB có nhiệm vụ export ra trelloDatabaseInstance sau khi đã connect thành công tới MongoDB
@@ -36,4 +33,9 @@ export const CONNECT_DB = async () => {
 export const GET_DB = () => {
   if (!trelloDatabaseInstance) throw new Error('Must connect to database first!')
   return trelloDatabaseInstance
+}
+
+// Đóng kết nối Database khi cần
+export const CLOSE_DB = async () => {
+  await mongoClientInstance.close()
 }
